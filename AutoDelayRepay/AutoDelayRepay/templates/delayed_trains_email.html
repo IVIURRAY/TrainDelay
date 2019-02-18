@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h2><span style="color:red;">{{ trains|length }}</span> Delayed Trains between {{ days[-1] }} / {{ days[0] }}</h2>
+    <h5>Find a list of delayed (>30mins) trains for Greater Abellio from {{ origin }} to {{ destination }} below. Sorted by longest delay.</h5>
+  {% for train in trains %}
+    <hr>
+  <h3 style="color:red;">{{ train['date'] }} {{ origin }}-{{ destination }}</h3>
+  <table>
+    <tr>
+    	<th>Scheduled Dept</th>
+      	<th>Due</th>
+      	<th>Delay (Mins)</th>
+      </tr>
+    	<tr align="center">
+          <td>{{ train['dept'] }}</td>
+          <td>{{ train['due'] }}</td>
+          <td>{{ train['delay']|int }}</td>
+    	</tr>
+  </table>
+    <a href="https://greateranglia.delayrepaycompensation.com/">Claim Now</a>
+{% endfor %}
+</body>
+</html>
