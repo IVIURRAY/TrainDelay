@@ -198,6 +198,7 @@ if __name__ == '__main__':
 
     if DEBUG:
         _main('LST', 'CHM', [])
+        _main('CHM', 'LST', [])
     else:
         _main(sys.argv[1], sys.argv[2], sys.argv[3:])
 
