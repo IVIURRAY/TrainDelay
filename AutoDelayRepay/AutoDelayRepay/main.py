@@ -7,9 +7,9 @@ from urllib.request import urlopen
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
-from AutoDelayRepay.AutoDelayRepay.stations import STATIONS
-from AutoDelayRepay.AutoDelayRepay.recipients import RECIPIANTS
-from AutoDelayRepay.AutoDelayRepay.passwords import PASSWORD
+from stations import STATIONS
+from recipients import RECIPIANTS
+from passwords import PASSWORD
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 
 """
@@ -40,7 +40,7 @@ _TESTING_DATES1 = '21 02 2018'
 _TESTING_DATES2 = '28 02 2018'
 _FROM = 'CHM'
 _TO = 'CHM'
-
+_DELAY_LIMIT = 15
 
 def get_station(code):
     return STATIONS[code]
@@ -108,12 +108,12 @@ def train_durations(headers, trains_data, days, origin='CHM', destination='LST',
     return delay_mapping
 
 
-def filter_delays(delays, delay_limit=30):
+def filter_delays(delays):
     delayed_trains = []
 
     for train in delays:
         for day, delay in train.items():
-            if day not in ['due', 'dept'] and delay and delay > delay_limit:
+            if day not in ['due', 'dept'] and delay and delay > _DELAY_LIMIT:
                 print('%s was delayed by %s mins' % (train['due'], delay))
 
                 delayed_trains.append(
@@ -165,7 +165,7 @@ def main(origin='CHM', destination='LST', date=None):
 
     # 2 - Work out train arrival times and delays
     delays = train_durations(headers, rows, days, origin=origin, destination=destination)
-    delayed = filter_delays(delays, delay_limit=30)
+    delayed = filter_delays(delays)
 
     print('Delayed trains: \n', pprint(delayed))
     # 3 - Email Delays Out
@@ -179,6 +179,7 @@ def main(origin='CHM', destination='LST', date=None):
 
 def _main(origin, dest, *args):
     def getDefaultDate():
+        # return '20190728'
         t = datetime.today()
         while t.weekday() != 4:
             t = t - timedelta(1)
@@ -193,13 +194,9 @@ def _main(origin, dest, *args):
     date = datetime.strptime(kwargs.get('date', getDefaultDate()), '%Y%m%d')
     main(origin=origin, destination=dest, date=date)
 
-if __name__ == '__main__':
-    DEBUG = False # TODO set this to false once finished
 
-    if DEBUG:
-        _main('LST', 'CHM', [])
-        _main('CHM', 'LST', [])
-    else:
-        _main(sys.argv[1], sys.argv[2], sys.argv[3:])
+if __name__ == '__main__':
+    for (origin, dest) in [('SRA', 'CHM'), ('CHM', 'SRA')]:
+        _main(origin, dest, [])
 
     print('Finshed mofos')
